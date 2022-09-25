@@ -608,6 +608,15 @@ if setfpscap and type(setfpscap) == "function" then
     fpsLimit:Set((getgenv().settings.fpsLimit / 60) * 100)
     setfpscap(getgenv().settings.fpsLimit)
 end
+local Anon = otherTab:AddSwitch("Enable Anonymous Mode", function(bool)
+    getgenv().settings.Anon = bool
+    saveSettings()
+    if bool then
+        
+    else
+        
+    end
+end)
 
 boothTab:Show()
 library:FormatWindows()
@@ -692,7 +701,7 @@ Players.LocalPlayer.leaderstats.Raised.Changed:Connect(function()
         if string.find(logs[#logs].message, Players.LocalPlayer.DisplayName) then
             webhook(tostring(logs[#logs].message.. " (Total: ".. Players.LocalPlayer.leaderstats.Raised.value.. ")"))
         else
-            webhook(tostring("💰 Somebody tipped ".. Players.LocalPlayer.leaderstats.Raised.value - RaisedC.. " Robux to ".. Players.LocalPlayer.DisplayName.. " (Total: " .. Players.LocalPlayer.leaderstats.Raised.value.. ")"))
+            webhook(tostring("💰 Somebody Donated ".. Players.LocalPlayer.leaderstats.Raised.value - RaisedC.. " Robux to ".. Players.LocalPlayer.DisplayName.. " (Total: " .. Players.LocalPlayer.leaderstats.Raised.value.. ")💰"))
         end
     end
     RaisedC = Players.LocalPlayer.leaderstats.Raised.value
@@ -707,7 +716,7 @@ Players.LocalPlayer.leaderstats.Raised.Changed:Connect(function()
 end)
 update()
 if game:GetService("CoreGui").imgui.Windows.Window.Title.Text == "Loading..." then
-    game:GetService("CoreGui").imgui.Windows.Window.Title.Text = "PLS DONATE - LukeDXD2"
+    game:GetService("CoreGui").imgui.Windows.Window.Title.Text = "Auto Script PLS DONATE - ".. Players.LocalPlayer.DisplayName.. ""
 end
 while task.wait(getgenv().settings.serverHopDelay * 60) do
     if not hopTimer then
