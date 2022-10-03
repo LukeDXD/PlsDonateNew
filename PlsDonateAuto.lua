@@ -4,7 +4,7 @@ repeat
 until game:IsLoaded()
 
 --Stops script if on a different game
-if game.PlaceId ~= 8737602449 then
+if game.PlaceId ~= 8737602449 and game.PlaceId ~= 8943844393 then
     return
 end
 
@@ -35,42 +35,10 @@ end
 --Variables
 local unclaimed = {}
 local counter = 0
-local donation
-local signPass = false
-local boothText
+local donation, boothText, spamming, hopTimer, vcEnabled
+local signPass = false 
 local errCount = 0
-local spamming
-local hopTimer
-local booths = {
-    ["1"] = "72, 3, 36",
-    ["2"] = "83, 3, 161",
-    ["3"] = "11, 3, 36",
-    ["4"] = "100, 3, 59",
-    ["5"] = "72, 3, 166",
-    ["6"] = "2, 3, 42",
-    ["7"] = "-9, 3, 52",
-    ["8"] = "10, 3, 166",
-    ["9"] = "-17, 3, 60",
-    ["10"] = "35, 3, 173",
-    ["11"] = "24, 3, 170",
-    ["12"] = "48, 3, 29",
-    ["13"] = "24, 3, 33",
-    ["14"] = "101, 3, 142",
-    ["15"] = "-18, 3, 142",
-    ["16"] = "60, 3, 33",
-    ["17"] = "35, 3, 29",
-    ["18"] = "0, 3, 160",
-    ["19"] = "48, 3, 173",
-    ["20"] = "61, 3, 170",
-    ["21"] = "91, 3, 151",
-    ["22"] = "-24, 3, 72",
-    ["23"] = "-28, 3, 88",
-    ["24"] = "92, 3, 51",
-    ["25"] = "-28, 3, 112",
-    ["26"] = "-24, 3, 129",
-    ["27"] = "83, 3, 42",
-    ["28"] = "-8, 3, 151"
-}
+local booths = { ["1"] = "72, 3, 36", ["2"] = "83, 3, 161", ["3"] = "11, 3, 36", ["4"] = "100, 3, 59", ["5"] = "72, 3, 166", ["6"] = "2, 3, 42", ["7"] = "-9, 3, 52", ["8"] = "10, 3, 166", ["9"] = "-17, 3, 60", ["10"] = "35, 3, 173", ["11"] = "24, 3, 170", ["12"] = "48, 3, 29", ["13"] = "24, 3, 33", ["14"] = "101, 3, 142", ["15"] = "-18, 3, 142", ["16"] = "60, 3, 33", ["17"] = "35, 3, 29", ["18"] = "0, 3, 160", ["19"] = "48, 3, 173", ["20"] = "61, 3, 170", ["21"] = "91, 3, 151", ["22"] = "-24, 3, 72", ["23"] = "-28, 3, 88", ["24"] = "92, 3, 51", ["25"] = "-28, 3, 112", ["26"] = "-24, 3, 129", ["27"] = "83, 3, 42", ["28"] = "-8, 3, 151" }
 local queueonteleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
 local httprequest = (syn and syn.request) or http and http.request or http_request or (fluxus and fluxus.request) or request
 local httpservice = game:GetService('HttpService')
@@ -105,12 +73,12 @@ local function claimGifts()
 end
 task.spawn(claimGifts)
 
-
+local filename = "plsdonatesettings-" .. Players.LocalPlayer.DisplayName.. ".txt"
 getgenv().settings = {}
 --Load Settings
-if isfile("plsdonatesettings.txt") then
+if isfile(filename) then
     local sl, er = pcall(function()
-        getgenv().settings = httpservice:JSONDecode(readfile('plsdonatesettings.txt'))
+        getgenv().settings = httpservice:JSONDecode(readfile(filename))
     end)
     if er ~= nil then
         task.spawn(function()
@@ -120,19 +88,19 @@ if isfile("plsdonatesettings.txt") then
             task.wait(15)
             errMsg:Destroy()
         end)
-    delfile("plsdonatesettings.txt")
+    delfile(filename)
     end
 
 end
-local sNames = {"textUpdateToggle", "textUpdateDelay", "serverHopToggle", "serverHopDelay", "hexBox", "goalBox", "webhookToggle", "webhookBox", "danceChoice", "thanksMessage", "signToggle", "customBoothText", "signUpdateToggle", "signText", "signHexBox", "autoThanks", "autoBeg", "begMessage", "begDelay", "fpsLimit", "render", "thanksDelay"}
-local sValues = {true, 30, true, 30, "#32CD32", 5, false, "", "Disabled", {"Thank you", "Thanks!", "ty :)", "tysm!"}, false, "GOAL: $C / $G", false, "your text here", "#ffffff", true, false, {"Please donate", "I'm so close to my goal!", "donate to me", "please"}, 300, 60, false, 3}
+local sNames = {"textUpdateToggle", "textUpdateDelay", "serverHopToggle", "serverHopDelay", "hexBox", "goalBox", "webhookToggle", "webhookBox", "danceChoice", "thanksMessage", "signToggle", "customBoothText", "signUpdateToggle", "signText", "signHexBox", "autoThanks", "autoBeg", "begMessage", "begDelay", "fpsLimit", "render", "thanksDelay", "vcServer"}
+local sValues = {true, 30, true, 30, "#32CD32", 5, false, "", "Disabled", {"Thank you", "Thanks!", "ty :)", "tysm!"}, false, "GOAL: $C / $G", false, "your text here", "#ffffff", true, false, {"Please donate", "I'm so close to my goal!", "donate to me", "please"}, 300, 60, false, 3, false}
 if #getgenv().settings ~= sNames then
     for i, v in ipairs(sNames) do
         if getgenv().settings[v] == nil then
             getgenv().settings[v] = sValues[i]
         end
     end
-    writefile('plsdonatesettings.txt', httpservice:JSONEncode(getgenv().settings))
+    writefile(filename, httpservice:JSONEncode(getgenv().settings))
 end
 
 --Save Settings
@@ -140,12 +108,16 @@ local settingsLock = true
 local function saveSettings()
     if settingsLock == false then
         print('Settings saved.')
-        writefile('plsdonatesettings.txt', httpservice:JSONEncode(getgenv().settings))
+        writefile(filename, httpservice:JSONEncode(getgenv().settings))
     end
 end
 local function serverHop()
+    local gameId = "8737602449"
+    if vcEnabled and getgenv().settings.vcServer then
+        gameId = "8943844393"
+    end
     local servers = {}
-    local req = httprequest({Url = "https://games.roblox.com/v1/games/8737602449/servers/Public?sortOrder=Desc&limit=100"})
+    local req = httprequest({Url = "https://games.roblox.com/v1/games/".. gameId.."/servers/Public?sortOrder=Desc&limit=100"})
    	local body = httpservice:JSONDecode(req.Body)
     if body and body.data then
         for i, v in next, body.data do
@@ -155,10 +127,10 @@ local function serverHop()
         end
     end
     if #servers > 0 then
-		game:GetService("TeleportService"):TeleportToPlaceInstance("8737602449", servers[math.random(1, #servers)], Players.LocalPlayer)
+		game:GetService("TeleportService"):TeleportToPlaceInstance(gameId, servers[math.random(1, #servers)], Players.LocalPlayer)
     end
     game:GetService("TeleportService").TeleportInitFailed:Connect(function()
-        game:GetService("TeleportService"):TeleportToPlaceInstance("8737602449", servers[math.random(1, #servers)], Players.LocalPlayer)
+        game:GetService("TeleportService"):TeleportToPlaceInstance(gameId, servers[math.random(1, #servers)], Players.LocalPlayer)
     end)
 end
 
@@ -537,6 +509,11 @@ end)
 
 
 --Server Hop Settings
+pcall(function()
+    if game:GetService("VoiceChatService"):IsVoiceEnabledForUserIdAsync(Players.LocalPlayer.UserId) then
+        vcEnabled = true
+    end
+end)
 local serverHopToggle = serverHopTab:AddSwitch("Auto Server Hop", function(bool)
     if settingsLock then
         return
@@ -559,6 +536,16 @@ end,
 })
 serverHopDelay:Set((getgenv().settings.serverHopDelay / 120) * 100)
 serverHopTab:AddLabel("Timer resets after donation")
+if vcEnabled then
+    local vcToggle = serverHopTab:AddSwitch("Voice Chat Servers", function(bool)
+        if settingsLock then
+            return
+        end
+        getgenv().settings.vcServer = bool
+        saveSettings()
+    end)
+    vcToggle:Set(getgenv().settings.vcServer)
+end
 serverHopTab:AddButton("Server Hop", function()
     serverHop()
 end)
@@ -608,15 +595,6 @@ if setfpscap and type(setfpscap) == "function" then
     fpsLimit:Set((getgenv().settings.fpsLimit / 60) * 100)
     setfpscap(getgenv().settings.fpsLimit)
 end
-local Anon = otherTab:AddSwitch("Enable Anonymous Mode", function(bool)
-    getgenv().settings.Anon = bool
-    saveSettings()
-    if bool then
-        
-    else
-        
-    end
-end)
 
 boothTab:Show()
 library:FormatWindows()
@@ -701,7 +679,7 @@ Players.LocalPlayer.leaderstats.Raised.Changed:Connect(function()
         if string.find(logs[#logs].message, Players.LocalPlayer.DisplayName) then
             webhook(tostring(logs[#logs].message.. " (Total: ".. Players.LocalPlayer.leaderstats.Raised.value.. ")"))
         else
-            webhook(tostring("💰 Somebody Donated ".. Players.LocalPlayer.leaderstats.Raised.value - RaisedC.. " Robux to ".. Players.LocalPlayer.DisplayName.. " (Total: " .. Players.LocalPlayer.leaderstats.Raised.value.. ")💰"))
+            webhook(tostring("💰 Somebody tipped ".. Players.LocalPlayer.leaderstats.Raised.value - RaisedC.. " Robux to ".. Players.LocalPlayer.DisplayName.. " (Total: " .. Players.LocalPlayer.leaderstats.Raised.value.. ")"))
         end
     end
     RaisedC = Players.LocalPlayer.leaderstats.Raised.value
@@ -716,7 +694,7 @@ Players.LocalPlayer.leaderstats.Raised.Changed:Connect(function()
 end)
 update()
 if game:GetService("CoreGui").imgui.Windows.Window.Title.Text == "Loading..." then
-    game:GetService("CoreGui").imgui.Windows.Window.Title.Text = "Auto Script PLS DONATE - ".. Players.LocalPlayer.DisplayName.. ""
+    game:GetService("CoreGui").imgui.Windows.Window.Title.Text = "PLS DONATE - " .. Players.LocalPlayer.DisplayName.. ""
 end
 while task.wait(getgenv().settings.serverHopDelay * 60) do
     if not hopTimer then
