@@ -42,8 +42,8 @@ local booths = { ["1"] = "72, 3, 36", ["2"] = "83, 3, 161", ["3"] = "11, 3, 36",
 local queueonteleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
 local httprequest = (syn and syn.request) or http and http.request or http_request or (fluxus and fluxus.request) or request
 local httpservice = game:GetService('HttpService')
-queueonteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/LukeDXD/PlsDonateNew/main/PlsDonateAuto.lua'))()")
-local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/LukeDXD/PlsDonateNew/main/UI-Engine.lua"))()
+queueonteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/LukeDXD/PlsDonateNew/main/PlsDonateAuto.lua?token=GHSAT0AAAAAABZDRT47WFQY6G5ZLRFP3R6KYZ3LUFA'))()")
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/LukeDXD/PlsDonateNew/main/UI-Engine.lua?token=GHSAT0AAAAAABZDRT46ZOMIJ2OHY4RCWRFCYZ3LVYQ"))()
 
 local function claimGifts()
     pcall(function()
@@ -694,7 +694,7 @@ Players.LocalPlayer.leaderstats.Raised.Changed:Connect(function()
 end)
 update()
 if game:GetService("CoreGui").imgui.Windows.Window.Title.Text == "Loading..." then
-    game:GetService("CoreGui").imgui.Windows.Window.Title.Text = "PLS DONATE SCRIPT"
+    game:GetService("CoreGui").imgui.Windows.Window.Title.Text = "PLS DONATE - " .. Players.LocalPlayer.DisplayName.. ""
 end
 while task.wait(getgenv().settings.serverHopDelay * 60) do
     if not hopTimer then
