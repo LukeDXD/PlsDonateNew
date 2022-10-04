@@ -242,13 +242,6 @@ local function webhook(msg)
     })
 end
 
---Sign Settings
-pcall(function()
-    if game:GetService("MarketplaceService"):UserOwnsGamePassAsync(Players.LocalPlayer.UserId, 28460459) then
-        signPass = true
-    end
-end)
-
 --GUI
 local Window = library:AddWindow("Loading...",
 {
@@ -258,9 +251,7 @@ local Window = library:AddWindow("Loading...",
 })
 
 local boothTab = Window:AddTab("Booth")
-if signPass then
 local signTab = Window:AddTab("Sign")
-end
 local chatTab = Window:AddTab("Chat")
 local webhookTab = Window:AddTab("Discord")
 local serverHopTab = Window:AddTab("Server")
@@ -408,6 +399,9 @@ signHexBox.Text = getgenv().settings.signHexBox
     local signHelpLabel = signTab:AddLabel("$C = Current, $G = Goal, 221 Character Limit")
     signHelpLabel.TextSize = 9
     signHelpLabel.TextXAlignment = Enum.TextXAlignment.Center
+    
+else
+    signTab:AddLabel('Requires Sign Gamepass')
 end
 
 --Chat Settings
