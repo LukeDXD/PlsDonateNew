@@ -42,8 +42,8 @@ local booths = { ["1"] = "72, 3, 36", ["2"] = "83, 3, 161", ["3"] = "11, 3, 36",
 local queueonteleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
 local httprequest = (syn and syn.request) or http and http.request or http_request or (fluxus and fluxus.request) or request
 local httpservice = game:GetService('HttpService')
-queueonteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/LukeDXD/PlsDonateNew/main/PlsDonateAuto.lua?token=GHSAT0AAAAAABZDRT47WFQY6G5ZLRFP3R6KYZ3LUFA'))()")
-local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/LukeDXD/PlsDonateNew/main/UI-Engine.lua?token=GHSAT0AAAAAABZDRT46ZOMIJ2OHY4RCWRFCYZ3LVYQ"))()
+queueonteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/LukeDXD/PlsDonateNew/main/PlsDonateAuto.lua'))()")
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/LukeDXD/PlsDonateNew/main/UI-Engine.lua"))()
 
 local function claimGifts()
     pcall(function()
@@ -92,7 +92,7 @@ if isfile(filename) then
     end
 
 end
-local sNames = {"textUpdateToggle", "textUpdateDelay", "serverHopToggle", "serverHopDelay", "hexBox", "goalBox", "webhookToggle", "webhookBox", "danceChoice", "thanksMessage", "signToggle", "customBoothText", "signUpdateToggle", "signText", "signHexBox", "autoThanks", "autoBeg", "begMessage", "begDelay", "fpsLimit", "render", "thanksDelay", "vcServer"}
+local sNames = {"textUpdateToggle", "textUpdateDelay", "serverHopToggle", "serverHopDelay", "hexBox", "goalBox", "webhookToggle", "webhookBox", "danceChoice", "thanksMessage", "signToggle", "customBoothText", "signUpdateToggle", "signText", "signHexBox", "autoThanks", "autoBeg", "begMessage", "begDelay", "fpsLimit", "render", "themes", "thanksDelay", "vcServer"}
 local sValues = {true, 30, true, 30, "#32CD32", 5, false, "", "Disabled", {"Thank you", "Thanks!", "ty :)", "tysm!"}, false, "GOAL: $C / $G", false, "your text here", "#ffffff", true, false, {"Please donate", "I'm so close to my goal!", "donate to me", "please"}, 300, 60, false, 3, false}
 if #getgenv().settings ~= sNames then
     for i, v in ipairs(sNames) do
@@ -179,13 +179,18 @@ local function update()
     if current == 420 or current == 425 then
         current = current + 10
     end
-    if goal > 999 then
-        if tonumber(getgenv().settings.goalBox) < 10 then
-            goal = string.format("%.2fk", (current + 10) / 10 ^ 3)
-        else
-            goal = string.format("%.2fk", (goal) / 10 ^ 3)
-        end
-    end
+    if goal > 999 and goal < 10000 then
+			if tonumber(getgenv().settings.goalBox) < 10 then
+				goal = string.format("%.2fk", (current + 10) / 10 ^ 3)
+			else
+				goal = string.format("%.2fk", (goal) / 10 ^ 3)
+			end
+	end
+	
+	if goal > 10000 then
+	goal = string.format("%.fk", (current + 1000) / 10 ^ 3)
+	end
+	
     if current > 999 then
         current = string.format("%.2fk", current / 10 ^ 3)
     end
@@ -236,20 +241,30 @@ local function webhook(msg)
         Headers = {["content-type"] = "application/json"}
     })
 end
-    
+
+--Sign Settings
+pcall(function()
+    if game:GetService("MarketplaceService"):UserOwnsGamePassAsync(Players.LocalPlayer.UserId, 28460459) then
+        signPass = true
+    end
+end)
+
 --GUI
 local Window = library:AddWindow("Loading...",
 {
-    main_color = Color3.fromRGB(0, 128, 0),
+    main_color = Color3.fromRGB(0, 128, 255),
     min_size = Vector2.new(373, 433),
     toggle_key = Enum.KeyCode.RightShift,
 })
+
 local boothTab = Window:AddTab("Booth")
+if signPass then
 local signTab = Window:AddTab("Sign")
+end
 local chatTab = Window:AddTab("Chat")
-local webhookTab = Window:AddTab("Webhook")
+local webhookTab = Window:AddTab("Discord")
 local serverHopTab = Window:AddTab("Server")
-local otherTab = Window:AddTab("Other")
+local otherTab = Window:AddTab("Extra")
 
 --Booth Settings
 local textUpdateToggle = boothTab:AddSwitch("Text Update", function(bool)
@@ -328,12 +343,7 @@ end)
 local helpLabel = boothTab:AddLabel("$C = Current, $G = Goal, 221 Character Limit")
 helpLabel.TextSize = 9
 helpLabel.TextXAlignment = Enum.TextXAlignment.Center
---Sign Settings
-pcall(function()
-    if game:GetService("MarketplaceService"):UserOwnsGamePassAsync(Players.LocalPlayer.UserId, 28460459) then
-        signPass = true
-    end
-end)
+
 if signPass then
     local signToggle = signTab:AddSwitch("Equip Sign", function(bool)
         getgenv().settings.signToggle = bool
@@ -398,9 +408,6 @@ signHexBox.Text = getgenv().settings.signHexBox
     local signHelpLabel = signTab:AddLabel("$C = Current, $G = Goal, 221 Character Limit")
     signHelpLabel.TextSize = 9
     signHelpLabel.TextXAlignment = Enum.TextXAlignment.Center
-    
-else
-    signTab:AddLabel('Requires Sign Gamepass')
 end
 
 --Chat Settings
@@ -596,6 +603,15 @@ if setfpscap and type(setfpscap) == "function" then
     setfpscap(getgenv().settings.fpsLimit)
 end
 
+otherTab:AddLabel('Themes:')
+local themes = otherTab:AddSwitch("Green Theme", function(bool)
+    getgenv().settings.themes = bool
+    saveSettings()
+    if bool then
+    else
+    end
+end)
+
 boothTab:Show()
 library:FormatWindows()
 settingsLock = false
@@ -679,7 +695,7 @@ Players.LocalPlayer.leaderstats.Raised.Changed:Connect(function()
         if string.find(logs[#logs].message, Players.LocalPlayer.DisplayName) then
             webhook(tostring(logs[#logs].message.. " (Total: ".. Players.LocalPlayer.leaderstats.Raised.value.. ")"))
         else
-            webhook(tostring("💰 Somebody tipped ".. Players.LocalPlayer.leaderstats.Raised.value - RaisedC.. " Robux to ".. Players.LocalPlayer.DisplayName.. " (Total: " .. Players.LocalPlayer.leaderstats.Raised.value.. ")"))
+            webhook(tostring("💰 Somebody tipped ".. Players.LocalPlayer.leaderstats.Raised.value - RaisedC.. " Robux to ".. Players.LocalPlayer.DisplayName.. " (Total: " .. Players.LocalPlayer.leaderstats.Raised.value.. ")💰"))
         end
     end
     RaisedC = Players.LocalPlayer.leaderstats.Raised.value
