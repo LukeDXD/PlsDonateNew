@@ -76,9 +76,9 @@ task.spawn(claimGifts)
 local filename = "plsdonatesettings-" .. Players.LocalPlayer.DisplayName.. ".txt"
 getgenv().settings = {}
 --Load Settings
-if isfile(filename) then
+if isfile("plsdonatesettings.txt") then
     local sl, er = pcall(function()
-        getgenv().settings = httpservice:JSONDecode(readfile(filename))
+        getgenv().settings = httpservice:JSONDecode(readfile('plsdonatesettings.txt'))
     end)
     if er ~= nil then
         task.spawn(function()
@@ -88,11 +88,11 @@ if isfile(filename) then
             task.wait(15)
             errMsg:Destroy()
         end)
-    delfile(filename)
+    delfile("plsdonatesettings.txt")
     end
 
 end
-local sNames = {"textUpdateToggle", "textUpdateDelay", "serverHopToggle", "serverHopDelay", "hexBox", "goalBox", "webhookToggle", "webhookBox", "danceChoice", "thanksMessage", "signToggle", "customBoothText", "signUpdateToggle", "signText", "signHexBox", "autoThanks", "autoBeg", "begMessage", "begDelay", "fpsLimit", "render", "themes", "thanksDelay", "vcServer"}
+local sNames = {"textUpdateToggle", "textUpdateDelay", "serverHopToggle", "serverHopDelay", "hexBox", "goalBox", "webhookToggle", "webhookBox", "danceChoice", "thanksMessage", "signToggle", "customBoothText", "signUpdateToggle", "signText", "signHexBox", "autoThanks", "autoBeg", "begMessage", "begDelay", "fpsLimit", "render", "thanksDelay", "vcServer"}
 local sValues = {true, 30, true, 30, "#32CD32", 5, false, "", "Disabled", {"Thank you", "Thanks!", "ty :)", "tysm!"}, false, "GOAL: $C / $G", false, "your text here", "#ffffff", true, false, {"Please donate", "I'm so close to my goal!", "donate to me", "please"}, 300, 60, false, 3, false}
 if #getgenv().settings ~= sNames then
     for i, v in ipairs(sNames) do
@@ -186,11 +186,9 @@ local function update()
 				goal = string.format("%.2fk", (goal) / 10 ^ 3)
 			end
 	end
-	
 	if goal > 10000 then
 	goal = string.format("%.fk", (current + 1000) / 10 ^ 3)
 	end
-	
     if current > 999 then
         current = string.format("%.2fk", current / 10 ^ 3)
     end
@@ -241,7 +239,7 @@ local function webhook(msg)
         Headers = {["content-type"] = "application/json"}
     })
 end
-
+    
 --GUI
 local Window = library:AddWindow("Loading...",
 {
@@ -249,7 +247,6 @@ local Window = library:AddWindow("Loading...",
     min_size = Vector2.new(373, 433),
     toggle_key = Enum.KeyCode.RightShift,
 })
-
 local boothTab = Window:AddTab("Booth")
 local signTab = Window:AddTab("Sign")
 local chatTab = Window:AddTab("Chat")
@@ -334,7 +331,12 @@ end)
 local helpLabel = boothTab:AddLabel("$C = Current, $G = Goal, 221 Character Limit")
 helpLabel.TextSize = 9
 helpLabel.TextXAlignment = Enum.TextXAlignment.Center
-
+--Sign Settings
+pcall(function()
+    if game:GetService("MarketplaceService"):UserOwnsGamePassAsync(Players.LocalPlayer.UserId, 28460459) then
+        signPass = true
+    end
+end)
 if signPass then
     local signToggle = signTab:AddSwitch("Equip Sign", function(bool)
         getgenv().settings.signToggle = bool
@@ -597,15 +599,6 @@ if setfpscap and type(setfpscap) == "function" then
     setfpscap(getgenv().settings.fpsLimit)
 end
 
-otherTab:AddLabel('Themes:')
-local themes = otherTab:AddSwitch("Green Theme", function(bool)
-    getgenv().settings.themes = bool
-    saveSettings()
-    if bool then
-    else
-    end
-end)
-
 boothTab:Show()
 library:FormatWindows()
 settingsLock = false
@@ -689,7 +682,7 @@ Players.LocalPlayer.leaderstats.Raised.Changed:Connect(function()
         if string.find(logs[#logs].message, Players.LocalPlayer.DisplayName) then
             webhook(tostring(logs[#logs].message.. " (Total: ".. Players.LocalPlayer.leaderstats.Raised.value.. ")"))
         else
-            webhook(tostring("💰 Somebody tipped ".. Players.LocalPlayer.leaderstats.Raised.value - RaisedC.. " Robux to ".. Players.LocalPlayer.DisplayName.. " (Total: " .. Players.LocalPlayer.leaderstats.Raised.value.. ")💰"))
+            webhook(tostring("💰 Somebody tipped ".. Players.LocalPlayer.leaderstats.Raised.value - RaisedC.. " Robux to ".. Players.LocalPlayer.DisplayName.. " (Total: " .. Players.LocalPlayer.leaderstats.Raised.value.. ")"))
         end
     end
     RaisedC = Players.LocalPlayer.leaderstats.Raised.value
